@@ -59,6 +59,7 @@ class GroceryOrder ():
       config.read (args.config)
     
       # Next, obtain the custom application protocol object
+
       self.grocery_obj = ApplnProtoObj (True)  # the True flag indicates this is a server side
 
       # initialize the custom application objects
