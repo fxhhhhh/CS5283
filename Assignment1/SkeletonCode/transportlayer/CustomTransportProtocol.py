@@ -89,7 +89,7 @@ class CustomTransportProtocol ():
 
       print ("Custom Transport Protocol::send_appln_msg")
 
-      self.send_segment (payload  , size)
+      self.send_segment (payload, size)
     except Exception as e:
       raise e
 

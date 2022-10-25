@@ -45,6 +45,8 @@ class Refrigerator ():
     self.req_ratio = None
     self.groc_obj = None
     self.health_obj = None
+    self.target = None
+
 
   ########################################
   # configure/initialize
@@ -134,23 +136,32 @@ class Refrigerator ():
 
       # Test 1:
       # create a grocery order
-      msg = self.gen_grocery_order_msg ()
-      print ("Sending grocery msg to health server {}".format (msg))
-      # send it to health server and see if we get a bad request reply
-      self.health_obj.send_grocery_order (msg)
-      # now receive a response
-      reply = self.health_obj.recv_response ()
-      print ("Received reply {}".format (reply))
-      print("it should be bad!!!!!!!!!!!!!!!!!!")
-      print("-----------------------test1------------------------------------")
-
+      # msg = self.gen_grocery_order_msg ()
+      # print ("Sending grocery msg to health server {}".format (msg))
+      # # send it to health server and see if we get a bad request reply
+      #
+      #
+      # self.health_obj.send_grocery_order(msg, '10.0.0.7')
+      #
+      #
+      # # now receive a response
+      # reply = self.health_obj.recv_response ()
+      # print ("Received reply {}".format (reply))
+      # print("it should be bad!!!!!!!!!!!!!!!!!!")
+      # print("-----------------------test1------------------------------------")
+      #
 
       # Test 2:
       # create a health status
       msg = self.gen_health_status_msg ()
       print ("Sending health msg to grocery server {}".format (msg))
       # send it to grocery server and see if we get a bad request reply
-      self.groc_obj.send_health_status (msg)
+      self.groc_obj.send_health_status (msg, '10.0.0.6')
+
+
+
+
+
       # now receive a response
       reply = self.groc_obj.recv_response ()
       print ("Received reply {}".format (reply))
@@ -171,7 +182,9 @@ class Refrigerator ():
           msg = self.gen_grocery_order_msg ()
           print ("Sending grocery msg to grocery server {}".format (msg))
           # send it to health server and see if we get a bad request reply
-          self.groc_obj.send_grocery_order (msg)
+
+
+          self.groc_obj.send_grocery_order (msg,'10.0.0.7')
           # now receive a response
           print ("Waiting for response")
           response = self.groc_obj.recv_response ()
@@ -181,7 +194,7 @@ class Refrigerator ():
           msg = self.gen_health_status_msg ()
           print ("Sending health msg to health server {}".format (msg))
           # send it to grocery server and see if we get a bad request reply
-          self.health_obj.send_health_status (msg)
+          self.health_obj.send_health_status (msg,'10.0.0.6')
           # now receive a response
           print ("Waiting for response")
           response = self.health_obj.recv_response ()

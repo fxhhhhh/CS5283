@@ -113,7 +113,7 @@ class CustomApplnProtocol ():
   #  send Grocery Order
   ##################################
   # here we need to serialize as transport layere will not do
-  def send_grocery_order (self, order):
+  def send_grocery_order (self, order, ip):
     try:
       # @TODO@ Implement this
       # Essentially, you will need to take the Grocery Order supplied in native host
@@ -126,9 +126,10 @@ class CustomApplnProtocol ():
       # but remove it with the correct payload and length.
       if(order.type != MessageTypes.GROCERY):
         raise BadMessageType()
+      print("this is the msg before")
       afterSerialize = self.gro_serialize(order)
-
-
+      b = bytes(ip,'utf-8')
+      afterSerialize = b + afterSerialize
       self.xport_obj.send_appln_msg(afterSerialize, len(afterSerialize))
 
     except Exception as e:
@@ -137,7 +138,7 @@ class CustomApplnProtocol ():
   ##################################
   #  send Health Status
   ##################################
-  def send_health_status (self, status):
+  def send_health_status (self, status,ip):
     try:
       # @TODO@ Implement this
       # Essentially, you will need to take the Health Status supplied in native host
@@ -151,7 +152,11 @@ class CustomApplnProtocol ():
       if (status.type != MessageTypes.HEALTH):
         raise BadMessageType()
       afterSerialize = self.hea_serialize(status)
-      self.xport_obj.send_appln_msg(afterSerialize, len(afterSerialize))
+      print(type(afterSerialize))
+      b = bytes(ip, 'utf-8')
+      print(type(b))
+      c = b + afterSerialize
+      self.xport_obj.send_appln_msg(c, len(afterSerialize))
     except Exception as e:
       raise e
 
@@ -195,6 +200,10 @@ class CustomApplnProtocol ():
       # message.
       print ("CustomApplnProtocol::recv_appln_msg")
       request = self.xport_obj.recv_appln_msg ()
+      print(request)
+      request = request[8:]
+      print("debug 1")
+      print(request)
       if self.ser_type == SerializationType.JSON:
         json_buf = json.loads(request)
         if MessageTypes(json_buf["type"]) == MessageTypes.GROCERY:
@@ -242,7 +251,6 @@ class CustomApplnProtocol ():
       # message.
       print ("CustomApplnProtocol::recv_response")
       request = self.xport_obj.recv_appln_msg ()
-
       if self.ser_type == SerializationType.JSON:
         json_buf = json.loads(request)
         if MessageTypes(json_buf["type"]) == MessageTypes.GROCERY:
