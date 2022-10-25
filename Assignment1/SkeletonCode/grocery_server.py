@@ -60,7 +60,7 @@ class GroceryOrder ():
     
       # Next, obtain the custom application protocol object
 
-      self.grocery_obj = ApplnProtoObj (True)  # the True flag indicates this is a server side
+      self.grocery_obj = ApplnProtoObj (1)  # the True flag indicates this is a server side
 
       # initialize the custom application objects
       self.grocery_obj.initialize (config, args.addr, args.port)
@@ -124,9 +124,10 @@ def parseCmdLineArgs ():
 
   # add optional arguments
   parser.add_argument ("-c", "--config", default="config.ini", help="configuration file (default: config.ini")
-  parser.add_argument ("-a", "--addr", default="*", help="Interface we are accepting connections on (default: all)")
-  parser.add_argument ("-p", "--port", type=int, default=5555, help="Port the health status server is listening on (default: 5555)")
-  
+  parser.add_argument ("-a", "--addr", default="127.0.0.7", help="Interface we are accepting connections on (default: all)")
+  parser.add_argument ("-p", "--port", type=int, default=4444, help="Port the health status server is listening on (default: 5555)")
+
+
   args = parser.parse_args ()
 
   return args

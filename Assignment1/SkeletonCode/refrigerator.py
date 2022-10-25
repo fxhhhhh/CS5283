@@ -55,7 +55,7 @@ class Refrigerator ():
     try:
       # Here we initialize any internal variables
       print ("Refrigerator Object: Initialize")
-    
+
       # initialize our variables
       self.iters = args.iters
       self.req_ratio = args.req_ratio
@@ -63,10 +63,10 @@ class Refrigerator ():
       # Now, get the configuration object
       config = configparser.ConfigParser ()
       config.read (args.config)
-    
+
       # Next, obtain the custom application protocol objects
-      self.groc_obj = ApplnProtoObj (False)  # the false flag indicates this is a client side
-      self.health_obj = ApplnProtoObj (False)  # the false flag indicates this is a client side
+      self.groc_obj = ApplnProtoObj (0)  # the false flag indicates this is a client side
+      self.health_obj = ApplnProtoObj (0)  # the false flag indicates this is a client side
 
       # initialize the custom application objects
       self.groc_obj.initialize (config, args.groc_ip, args.groc_port)
@@ -85,7 +85,7 @@ class Refrigerator ():
     #
     # Basically, use some random number or any such logic and create a grocery message.
     # We do not care about its contents.
-    
+
     groc_msg = GroceryOrderMessage ()
     # fill up the fields in whatever way you want
     groc_msg.type = MessageTypes.GROCERY
@@ -101,7 +101,7 @@ class Refrigerator ():
     groc_msg.drinks['bottle']['apple_juice'] = 1
     groc_msg.drinks['bottle']['orange_juice'] = 1
     return groc_msg
-  
+
   ########################################
   #  A generator of the health status message
   ########################################
@@ -112,7 +112,7 @@ class Refrigerator ():
     #
     # Basically, use some random number or any such logic and create a status message.
     # We do not care about its contents.
-    
+
     status_msg = HealthStatusMessage ()
     # fill up the fields in whatever way you want
     status_msg.type = MessageTypes.HEALTH
@@ -122,11 +122,11 @@ class Refrigerator ():
     status_msg.dispenser = dispenser_type.PTIMAL
     status_msg.sensor_status = status_type.Good
     return status_msg
-  
+
   ##################################
   # Driver program
   ##################################
-  def driver (self):
+  def driver (self,args):
     try:
 
       # To ensure that bad requests are handled correctly, initially let us first
@@ -139,10 +139,12 @@ class Refrigerator ():
       # send it to health server and see if we get a bad request reply
       self.health_obj.send_grocery_order (msg)
       # now receive a response
-      reply = self.health_obj.recv_response () 
+      reply = self.health_obj.recv_response ()
       print ("Received reply {}".format (reply))
       print("it should be bad!!!!!!!!!!!!!!!!!!")
       print("-----------------------test1------------------------------------")
+
+
       # Test 2:
       # create a health status
       msg = self.gen_health_status_msg ()
@@ -153,11 +155,11 @@ class Refrigerator ():
       reply = self.groc_obj.recv_response ()
       print ("Received reply {}".format (reply))
       print("-----------------------test2------------------------------------")
-      # Test 3: 
+      # Test 3:
       # Here in each iteration and depending on the ratio, we decide whether to
-      # send Grocery Message or Health Status Message. These are sent correctly. 
+      # send Grocery Message or Health Status Message. These are sent correctly.
       #
-      # @TODO - 
+      # @TODO -
       # Sending messages as per the ratio is not such a big deal for this assignment.
       # Just alternating between the two is fine. What we really care is that both
       # kinds of message types can be sent, and that if they received by the right
@@ -187,7 +189,7 @@ class Refrigerator ():
 
         # some delay between requests
         time.sleep (1)
-      
+
     except Exception as e:
       raise e
 
@@ -206,11 +208,10 @@ def parseCmdLineArgs ():
   parser.add_argument ("-s", "--status_ip", default="127.0.0.1", help="IP Address of Health Status server to connect to (default: localhost i.e., 127.0.0.1)")
   parser.add_argument ("-q", "--status_port", type=int, default=7777, help="Port that Healt Status server is listening on (default: 7777)")
   parser.add_argument ("-r", "--req_ratio", default="1:1", help="Ratio of grocery orders sent to health status (default: 1:1 implying equal number)")
-  
   args = parser.parse_args ()
 
   return args
-    
+
 #------------------------------------------
 # main function
 def main ():
@@ -222,7 +223,7 @@ def main ():
     # first parse the command line args
     print ("Refrigerator main: parsing command line")
     parsed_args = parseCmdLineArgs ()
-    
+
     # Obtain a refrigerator object
     print ("Refrigerator main: obtain the object")
     fridge = Refrigerator ()
@@ -233,7 +234,7 @@ def main ():
 
     # Now drive the rest of the assignment
     print ("Refrigerator main: invoke driver")
-    fridge.driver ()
+    fridge.driver (parsed_args)
 
     # we are done. collect results and do the plotting etc.
     #

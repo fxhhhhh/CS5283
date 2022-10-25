@@ -109,6 +109,7 @@ def parseCmdLineArgs ():
   parser.add_argument ("-p", "--port", type=int, default=4444, help="Port that next hop router is listening on (default: 4444)")
   parser.add_argument ("-i", "--iters", type=int, default=1000, help="Number of iterations (default: 1000")
   parser.add_argument ("-m", "--message", default="HelloWorld", help="Message to send: default HelloWorld")
+
   args = parser.parse_args ()
 
   return args

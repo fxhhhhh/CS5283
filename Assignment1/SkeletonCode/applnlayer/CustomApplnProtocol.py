@@ -13,6 +13,7 @@
 import sys    # for syspath and system exception
 import json  # JSON package
 from enum import Enum  # for enumerated types
+import os
 from applnlayer.ApplnMessageTypes import MessageTypes
 from FlatBuffers1 import CustomAppProto
 # add to the python system path so that packages can be found relative to
@@ -62,7 +63,7 @@ class CustomApplnProtocol ():
   # constructor
   ###############################
   def __init__ (self, role):
-    self.role = role  # indicates if we are client or server, false => client
+    self.role = role  # indicates if we are client = 2 or server = 1,router = 3
     self.ser_type = SerializationType.UNKNOWN
     self.xport_obj = None # handle to our underlying transport layer object
     self.gro_serialize = json_gro_serialize.serialize
@@ -81,7 +82,7 @@ class CustomApplnProtocol ():
       # Here we initialize any internal variables
       print ("Custom Application Protocol Object: Initialize")
       print ("serialization type = {}".format (config["Application"]["Serialization"]))
-    
+
       # initialize our variables
       if (config["Application"]["Serialization"] == "json"):
         self.ser_type = SerializationType.JSON
@@ -104,10 +105,10 @@ class CustomApplnProtocol ():
       # initialize it
       print ("Custom Appln Protocol::initialize - initialize transport object")
       self.xport_obj.initialize (config, ip, port)
-      
+
     except Exception as e:
       raise e  # just propagate it
-    
+
   ##################################
   #  send Grocery Order
   ##################################
@@ -126,6 +127,8 @@ class CustomApplnProtocol ():
       if(order.type != MessageTypes.GROCERY):
         raise BadMessageType()
       afterSerialize = self.gro_serialize(order)
+
+
       self.xport_obj.send_appln_msg(afterSerialize, len(afterSerialize))
 
     except Exception as e:

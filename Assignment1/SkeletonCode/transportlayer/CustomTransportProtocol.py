@@ -34,7 +34,7 @@ class CustomTransportProtocol ():
   # constructor
   ###############################
   def __init__ (self, role):
-    self.role = role  # indicates if we are client or server, false => client
+    self.role = role  # indicates if we are client = 2 or server = 1,router = 3
     self.ip = None
     self.port = None
     self.nw_obj = None # handle to our underlying network layer object
@@ -52,6 +52,7 @@ class CustomTransportProtocol ():
       # initialize our variables
       self.ip = ip
       self.port = port
+
 
       # in a subsequent assignment, we will use the max segment size for our
       # transport protocol. This will be passed in the config.ini file.
@@ -87,7 +88,8 @@ class CustomTransportProtocol ():
       # segment
 
       print ("Custom Transport Protocol::send_appln_msg")
-      self.send_segment (payload, size)
+
+      self.send_segment (payload  , size)
     except Exception as e:
       raise e
 

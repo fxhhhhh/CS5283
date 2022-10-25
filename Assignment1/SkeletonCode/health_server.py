@@ -56,7 +56,7 @@ class HealthStatus ():
       config.read (args.config)
     
       # Next, obtain the custom application protocol object
-      self.health_obj = ApplnProtoObj (True)  # the True flag indicates this is a server side
+      self.health_obj = ApplnProtoObj (1)  # the True flag indicates this is a server side
 
       # initialize the custom application objects
       self.health_obj.initialize (config, args.addr, args.port)
@@ -115,9 +115,8 @@ def parseCmdLineArgs ():
 
   # add optional arguments
   parser.add_argument ("-c", "--config", default="config.ini", help="configuration file (default: config.ini")
-  parser.add_argument ("-a", "--addr", default="*", help="Interface we are accepting connections on (default: all)")
-  parser.add_argument ("-p", "--port", type=int, default=7777, help="Port the health status server is listening on (default: 7777)")
-  
+  parser.add_argument ("-a", "--addr", default="10.0.0.6", help="Interface we are accepting connections on (default: all)")
+  parser.add_argument ("-p", "--port", type=int, default=4444, help="Port the health status server is listening on (default: 7777)")
   args = parser.parse_args ()
 
   return args
