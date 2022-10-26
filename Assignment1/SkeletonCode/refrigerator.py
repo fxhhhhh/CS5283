@@ -152,20 +152,17 @@ class Refrigerator ():
       #
 
       # Test 2:
-      # create a health status
-      msg = self.gen_health_status_msg ()
-      print ("Sending health msg to grocery server {}".format (msg))
-      # send it to grocery server and see if we get a bad request reply
-      self.groc_obj.send_health_status (msg, '10.0.0.6')
-
-
-
-
-
-      # now receive a response
-      reply = self.groc_obj.recv_response ()
-      print ("Received reply {}".format (reply))
-      print("-----------------------test2------------------------------------")
+      # # create a health status
+      # msg = self.gen_health_status_msg ()
+      # print ("Sending health msg to grocery server {}".format (msg))
+      # # send it to grocery server and see if we get a bad request reply
+      # self.groc_obj.send_health_status (msg, '10.0.0.5')
+      #
+      #
+      # # now receive a response
+      # reply = self.groc_obj.recv_response ()
+      # print ("Received reply {}".format (reply))
+      # print("-----------------------test2------------------------------------")
       # Test 3:
       # Here in each iteration and depending on the ratio, we decide whether to
       # send Grocery Message or Health Status Message. These are sent correctly.
@@ -182,9 +179,7 @@ class Refrigerator ():
           msg = self.gen_grocery_order_msg ()
           print ("Sending grocery msg to grocery server {}".format (msg))
           # send it to health server and see if we get a bad request reply
-
-
-          self.groc_obj.send_grocery_order (msg,'10.0.0.7')
+          self.groc_obj.send_grocery_order (msg,'10.0.0.5')
           # now receive a response
           print ("Waiting for response")
           response = self.groc_obj.recv_response ()
@@ -199,9 +194,9 @@ class Refrigerator ():
           print ("Waiting for response")
           response = self.health_obj.recv_response ()
           print ("Received reply {}".format (response))
-
-        # some delay between requests
-        time.sleep (1)
+      #
+      #   # some delay between requests
+      #   time.sleep (1)
 
     except Exception as e:
       raise e

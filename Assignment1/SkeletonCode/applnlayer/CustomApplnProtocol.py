@@ -154,7 +154,7 @@ class CustomApplnProtocol ():
       afterSerialize = self.hea_serialize(status)
       print(type(afterSerialize))
       b = bytes(ip, 'utf-8')
-      print(type(b))
+
       c = b + afterSerialize
       self.xport_obj.send_appln_msg(c, len(afterSerialize))
     except Exception as e:
@@ -176,6 +176,7 @@ class CustomApplnProtocol ():
       # but remove it with the correct payload and length.
       if response.type != MessageTypes.RESPONSE:
         raise BadMessageType()
+      print("send response")
       afterSerialize = self.res_serialize(response)
       self.xport_obj.send_appln_msg(afterSerialize, len(afterSerialize))
 

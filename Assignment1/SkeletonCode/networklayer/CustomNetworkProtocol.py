@@ -83,12 +83,6 @@ class CustomNetworkProtocol():
                 # we are the client side
                 # print("Custom Network Protocol Object: Initialize - get REQ socket")
                 self.socket = self.ctx.socket(zmq.REQ)
-                # ip = '10.0.0.3'
-                # port = '4444'
-                # # since we are client, we connect
-                # connect_str = "tcp://" + ip + ":" + str(port)
-                # print("Custom Network Protocol Object: Initialize - connect socket to {}".format(connect_str))
-                # self.socket.connect(connect_str)
                 ip = '10.0.0.2'
                 port = '4444'
                 # since we are client, we connect
@@ -191,50 +185,10 @@ class CustomNetworkProtocol():
                 print("Some exception occurred getting DEALER socket {}".format(sys.exc_info()[0]))
                 return
 
-            request = bind_sock.recv_multipart()
-            print(request)
-            msg = request[2].decode("utf-8")[0:8]
-            print(msg)
-            if(myaddr == "10.0.0.2"):
-                print('it is in the router2')
-                if(msg == '10.0.0.6' ):
-                    nexthopaddr = '10.0.0.3'
-                    nexthopport = '4444'
-                else:
-                    nexthopaddr = '10.0.0.4'
-                    nexthopport = '4444'
-            else:
-                nexthopaddr = self.nexthopaddr
-                nexthopport = self.nexthopport
-
-            # if (msg == '10.0.0.6'):
-            #     nexthopaddr = config[self.myaddr]['ip1']
-            #     nexthopport = config[self.myaddr]['port1']
-            # else:
-            #     nexthopaddr = config[self.myaddr]['ip2']
-            #     nexthopport = config[self.myaddr]['port2']
-
-            try:
-                # as in a traditional socket, tell the system what IP addr and port are we
-                # going to connect to. Here, we are using TCP sockets.
-                print("Router connecting to next hop")
-                connect_string = "tcp://" + nexthopaddr + ":" + str(nexthopport)
-                print("TCP client will be connecting to {}".format(connect_string))
-                conn_sock.connect(connect_string)
-            except zmq.ZMQError as err:
-                print("ZeroMQ Error connecting DEALER socket: {}".format(err))
-                conn_sock.close()
-                return
-            except:
-                print("Some exception occurred connecting DEALER socket {}".format(sys.exc_info()[0]))
-                conn_sock.close()
-                return
-
             try:
                 # register sockets
                 print("Register sockets for incoming events")
                 poller.register(bind_sock, zmq.POLLIN)
-                poller.register(conn_sock, zmq.POLLIN)
             except zmq.ZMQError as err:
                 print("ZeroMQ Error registering with poller: {}".format(err))
                 return
@@ -245,11 +199,11 @@ class CustomNetworkProtocol():
             # since we are a server, we service incoming clients forever
             print("Router now starting its forwarding loop")
             while True:
+
                 try:
                     # collect all the sockets that are enabled in this iteration
                     print("Poller polling")
                     socks = dict(poller.poll())
-                    print(socks)
                 except zmq.ZMQError as err:
                     print("ZeroMQ Error polling: {}".format(err))
                     return
@@ -276,6 +230,46 @@ class CustomNetworkProtocol():
                         bind_sock.close()
                         return
 
+                    print("get my target position")
+                    print(self.myaddr)
+                    print(request)
+                    msg = request[int(config[self.myaddr[7]]['a'])].decode("utf-8")[0:8]
+
+                    if (int(msg[7]) == 5):
+                        nexthopaddr = config[self.myaddr + ""]["ip1"]
+                        nexthopport = config[self.myaddr + ""]["port1"]
+                    if (int(msg[7]) == 6):
+                        nexthopaddr = config[self.myaddr + ""]["ip2"]
+                        nexthopport = config[self.myaddr + ""]['port2']
+
+                    try:
+                        # as in a traditional socket, tell the system what IP addr and port are we
+                        # going to connect to. Here, we are using TCP sockets.
+                        print("Router connecting to next hop")
+                        connect_string = "tcp://" + nexthopaddr + ":" + str(nexthopport)
+                        print("TCP client will be connecting to {}".format(connect_string))
+                        conn_sock.connect(connect_string)
+                    except zmq.ZMQError as err:
+                        print("ZeroMQ Error connecting DEALER socket: {}".format(err))
+                        conn_sock.close()
+                        return
+                    except:
+                        print("Some exception occurred connecting DEALER socket {}".format(sys.exc_info()[0]))
+                        conn_sock.close()
+                        return
+
+                    try:
+                        # register sockets
+                        # print("Register sockets for incoming events")
+                        # poller.register(bind_sock, zmq.POLLIN)
+                        poller.register(conn_sock, zmq.POLLIN)
+                    except zmq.ZMQError as err:
+                        print("ZeroMQ Error registering with poller: {}".format(err))
+                        return
+                    except:
+                        print("Some exception occurred getting poller {}".format(sys.exc_info()[0]))
+                        return
+
                     try:
                         #  forward request to server
                         print("Forward the same request to next hop over the DEALER")
@@ -289,6 +283,19 @@ class CustomNetworkProtocol():
                         print("Some exception occurred forwarding {}".format(sys.exc_info()[0]))
                         conn_sock.close()
                         return
+
+                    try:
+                        # collect all the sockets that are enabled in this iteration
+                        print("Poller polling")
+                        socks = dict(poller.poll())
+                        print(socks)
+                    except zmq.ZMQError as err:
+                        print("ZeroMQ Error polling: {}".format(err))
+                        return
+                    except:
+                        print("Some exception occurred in polling {}".format(sys.exc_info()[0]))
+                        return
+
 
                 if conn_sock in socks:
                     try:
@@ -330,6 +337,10 @@ class CustomNetworkProtocol():
             print("Custom Network Protocol::send_packet")
             # @TODO@ - this may need mod depending on json or serialized packet
             print("CustomNetworkProtocol::send_packet")
+            # add the randomly generate information
+            # randomGenerate = os.urandom(1024 - len(packet))
+            # packet = packet + randomGenerate + bytes(len(packet),'utf-8')
+            # print(len(packet))
             self.socket.send(packet,len(packet))
             #self.socket.send(bytes(packet,"utf-8"))
         except Exception as e:

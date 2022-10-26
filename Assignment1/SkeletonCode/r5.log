@@ -1,0 +1,19 @@
+Current libzmq version is 4.3.4
+Current pyzmq version is 23.2.1
+Skeleton Code for the HealthStatus Server
+HealthStatus main: parsing command line
+HealthStatus main: obtain the object
+HealthStatus main: initialize the object
+HealthStatus Object: Initialize
+Custom Application Protocol Object: Initialize
+serialization type = json
+Custom Appln Protocol::initialize - obtain transport object
+Custom Appln Protocol::initialize - initialize transport object
+Custom Transport Protocol Object: Initialize
+Custom Transport Protocol::initialize - obtain network object
+Custom Transport Protocol::initialize - initialize network object
+Custom Network Protocol Object: Initialize
+Custom Network Protocol Object: Initialize - get ZeroMQ context
+Custom Network Protocol Object: Initialize - get REP socket
+Custom Network Protocol Object: Initialize - bind socket to tcp://10.0.0.6:4444
+Exception caught in main - Cannot assign requested address
