@@ -129,8 +129,11 @@ class CustomApplnProtocol ():
       print("this is the msg before")
       afterSerialize = self.gro_serialize(order)
       b = bytes(ip,'utf-8')
-      afterSerialize = b + afterSerialize
-      self.xport_obj.send_appln_msg(afterSerialize, len(afterSerialize))
+      length = bytes(str(len(afterSerialize)),'utf-8')
+      c = b + length + afterSerialize
+      print(c)
+      c = c + bytes(str(os.urandom(1024 - len(c))), 'utf-8')
+      self.xport_obj.send_appln_msg(c, len(c))
 
     except Exception as e:
       raise e
@@ -154,9 +157,11 @@ class CustomApplnProtocol ():
       afterSerialize = self.hea_serialize(status)
       print(type(afterSerialize))
       b = bytes(ip, 'utf-8')
-
-      c = b + afterSerialize
-      self.xport_obj.send_appln_msg(c, len(afterSerialize))
+      length = bytes(str(len(afterSerialize)), 'utf-8')
+      c = b + length + afterSerialize
+      print(c)
+      c = c + bytes(str(os.urandom(1024 - len(c))), 'utf-8')
+      self.xport_obj.send_appln_msg(c, len(c))
     except Exception as e:
       raise e
 
@@ -201,8 +206,10 @@ class CustomApplnProtocol ():
       # message.
       print ("CustomApplnProtocol::recv_appln_msg")
       request = self.xport_obj.recv_appln_msg ()
+      print("CustomApplnProtocol::recv_appln_msg ------successfully")
       print(request)
-      request = request[8:]
+      length = request[8:11]
+      request = request[11: 11 +int(length)]
       print("debug 1")
       print(request)
       if self.ser_type == SerializationType.JSON:

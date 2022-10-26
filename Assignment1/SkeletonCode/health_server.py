@@ -115,7 +115,7 @@ def parseCmdLineArgs ():
 
   # add optional arguments
   parser.add_argument ("-c", "--config", default="config.ini", help="configuration file (default: config.ini")
-  parser.add_argument ("-a", "--addr", default="10.0.0.5", help="Interface we are accepting connections on (default: all)")
+  parser.add_argument ("-a", "--addr", default="10.0.0.6", help="Interface we are accepting connections on (default: all)")
   parser.add_argument ("-p", "--port", type=int, default=4444, help="Port the health status server is listening on (default: 7777)")
   args = parser.parse_args ()
 

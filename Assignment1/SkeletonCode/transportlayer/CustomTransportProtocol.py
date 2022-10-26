@@ -120,6 +120,8 @@ class CustomTransportProtocol ():
       # For this assignment, we do not care about all these things.
       print ("Custom Transport Protocol::recv_appln_msg")
       appln_msg = self.recv_segment ()
+      print(appln_msg)
+      print("Custom Transport Protocol::recv_appln_msg -------- successfully")
       return appln_msg
     
     except Exception as e:
@@ -135,7 +137,9 @@ class CustomTransportProtocol ():
       #
       # For this assignment, we do not care about all these things.
       print ("Custom Transport Protocol::recv_segment")
-      segment = self.nw_obj.recv_packet (len)
+      segment = self.nw_obj.recv_packet ()
+      print(segment)
+      print("Custom Transport Protocol::recv_segment------ successfully")
       return segment
     
     except Exception as e:

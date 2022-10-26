@@ -341,7 +341,7 @@ class CustomNetworkProtocol():
             # randomGenerate = os.urandom(1024 - len(packet))
             # packet = packet + randomGenerate + bytes(len(packet),'utf-8')
             # print(len(packet))
-            self.socket.send(packet,len(packet))
+            self.socket.send(packet)
             #self.socket.send(bytes(packet,"utf-8"))
         except Exception as e:
             raise e
@@ -355,6 +355,8 @@ class CustomNetworkProtocol():
             # convert to json, some mods will be needed here. Use the config.ini file.
             print("CustomNetworkProtocol::recv_packet")
             packet = self.socket.recv()
+            print(packet)
+            print("CustomNetworkProtocol::recv_packet ------ successfully")
             return packet
         except Exception as e:
             raise e
