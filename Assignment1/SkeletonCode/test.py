@@ -1,7 +1,15 @@
 import configparser  # for configuration parsing
 if __name__ == '__main__':
-    a = '10.0.0.7'
-    b = len(a)
-    c = bytes(a,'utf-8')
-    d = bytes(str(b),'utf-8')
-    print(c + d)
+    print("Custom Transport Protocol::recv_appln_msg")
+    appln_msg = bytes('', 'utf-8')
+
+    size = 1
+    while len(appln_msg) < 64 * (16 + 1 + 11) + 11:
+        print('debug 1')
+        currMsg = b'1234567890'
+        size = int(currMsg[8:11].decode("utf-8"))
+        appln_msg = appln_msg + currMsg[11:-1]
+    appln_msg = appln_msg[0:size + 1]
+    print("Custom Transport Protocol::recv_appln_msg -------- successfully")
+
+

@@ -179,12 +179,24 @@ class Refrigerator ():
           msg = self.gen_grocery_order_msg ()
           print ("Sending grocery msg to grocery server {}".format (msg))
           # send it to health server and see if we get a bad request reply
+
+          config = configparser.ConfigParser()
+          config.read(args.config)
+
+          self.groc_obj = ApplnProtoObj(0)  # the false flag indicates this is a client side
+          self.groc_obj.initialize (config, args.groc_ip, args.groc_port)
           self.groc_obj.send_grocery_order (msg,'10.0.0.5')
           # now receive a response
           print ("Waiting for response")
           response = self.groc_obj.recv_response ()
           print ("Received reply {}".format (response))
         else:
+          config = configparser.ConfigParser()
+          config.read(args.config)
+
+          self.health_obj = ApplnProtoObj(0)  # the false flag indicates this is a client side
+          self.health_obj.initialize(config, args.status_ip, args.status_port)
+
           # create a health status
           msg = self.gen_health_status_msg ()
           print ("Sending health msg to health server {}".format (msg))
@@ -194,9 +206,9 @@ class Refrigerator ():
           print ("Waiting for response")
           response = self.health_obj.recv_response ()
           print ("Received reply {}".format (response))
-      #
-      #   # some delay between requests
-      #   time.sleep (1)
+
+        # some delay between requests
+        time.sleep (1)
 
     except Exception as e:
       raise e
@@ -212,10 +224,11 @@ def parseCmdLineArgs ():
   parser.add_argument ("-c", "--config", default="config.ini", help="configuration file (default: config.ini")
   parser.add_argument ("-i", "--iters", type=int, default=10, help="Number of iterations (default: 10")
   parser.add_argument ("-g", "--groc_ip", default="127.0.0.1", help="IP Address of Grocery server to connect to (default: localhost i.e., 127.0.0.1)")
-  parser.add_argument ("-p", "--groc_port", type=int, default=5555, help="Port that grocery server is listening on (default: 5555)")
+  parser.add_argument ("-p", "--groc_port", type=int, default=4444, help="Port that grocery server is listening on (default: 5555)")
   parser.add_argument ("-s", "--status_ip", default="127.0.0.1", help="IP Address of Health Status server to connect to (default: localhost i.e., 127.0.0.1)")
-  parser.add_argument ("-q", "--status_port", type=int, default=7777, help="Port that Healt Status server is listening on (default: 7777)")
+  parser.add_argument ("-q", "--status_port", type=int, default=4444, help="Port that Healt Status server is listening on (default: 7777)")
   parser.add_argument ("-r", "--req_ratio", default="1:1", help="Ratio of grocery orders sent to health status (default: 1:1 implying equal number)")
+  parser.add_argument ("-m", "--message", default="HelloWorld", help="Message to send: default HelloWorld")
   args = parser.parse_args ()
 
   return args

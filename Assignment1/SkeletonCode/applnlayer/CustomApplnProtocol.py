@@ -129,10 +129,13 @@ class CustomApplnProtocol ():
       print("this is the msg before")
       afterSerialize = self.gro_serialize(order)
       b = bytes(ip,'utf-8')
-      length = bytes(str(len(afterSerialize)),'utf-8')
+      length = bytes(str(len(afterSerialize )),'utf-8')
       c = b + length + afterSerialize
-      print(c)
-      c = c + bytes(str(os.urandom(1024 - len(c))), 'utf-8')
+      print("--------------debug 1--------------")
+      print(c[11:11 +len(afterSerialize ) ])
+      print("--------------debug 1--------------")
+      c = c + bytes(str(os.urandom(1024 + 11 - len(c))), 'utf-8')
+
       self.xport_obj.send_appln_msg(c, len(c))
 
     except Exception as e:
@@ -141,7 +144,7 @@ class CustomApplnProtocol ():
   ##################################
   #  send Health Status
   ##################################
-  def send_health_status (self, status,ip):
+  def send_health_status (self, status, ip):
     try:
       # @TODO@ Implement this
       # Essentially, you will need to take the Health Status supplied in native host
@@ -155,12 +158,14 @@ class CustomApplnProtocol ():
       if (status.type != MessageTypes.HEALTH):
         raise BadMessageType()
       afterSerialize = self.hea_serialize(status)
-      print(type(afterSerialize))
       b = bytes(ip, 'utf-8')
       length = bytes(str(len(afterSerialize)), 'utf-8')
       c = b + length + afterSerialize
-      print(c)
-      c = c + bytes(str(os.urandom(1024 - len(c))), 'utf-8')
+      print("--------------debug 1--------------")
+      print(c[11:11 + len(afterSerialize)])
+      print("--------------debug 1--------------")
+      c = c + bytes(str(os.urandom(1024 + 11 - len(c))), 'utf-8')
+
       self.xport_obj.send_appln_msg(c, len(c))
     except Exception as e:
       raise e
@@ -183,7 +188,7 @@ class CustomApplnProtocol ():
         raise BadMessageType()
       print("send response")
       afterSerialize = self.res_serialize(response)
-      self.xport_obj.send_appln_msg(afterSerialize, len(afterSerialize))
+      self.xport_obj.send_appln_msg_responseOnly(afterSerialize, len(afterSerialize))
 
       # print ("CustomApplnProtocol::send_response")
       # self.xport_obj.send_appln_msg (response.dummy, len (response.dummy))
@@ -207,10 +212,6 @@ class CustomApplnProtocol ():
       print ("CustomApplnProtocol::recv_appln_msg")
       request = self.xport_obj.recv_appln_msg ()
       print("CustomApplnProtocol::recv_appln_msg ------successfully")
-      print(request)
-      length = request[8:11]
-      request = request[11: 11 +int(length)]
-      print("debug 1")
       print(request)
       if self.ser_type == SerializationType.JSON:
         json_buf = json.loads(request)
@@ -258,7 +259,7 @@ class CustomApplnProtocol ():
       # transport segments etc and so what we receive from ZMQ is the complete
       # message.
       print ("CustomApplnProtocol::recv_response")
-      request = self.xport_obj.recv_appln_msg ()
+      request = self.xport_obj.recv_appln_msg_onlyForClient()
       if self.ser_type == SerializationType.JSON:
         json_buf = json.loads(request)
         if MessageTypes(json_buf["type"]) == MessageTypes.GROCERY:
