@@ -11,6 +11,7 @@
 # import the needed packages
 import os  # for OS functions
 import sys  # for syspath and system exception
+import random
 
 # add to the python system path so that packages can be found relative to
 # this directory
@@ -40,8 +41,7 @@ class CustomNetworkProtocol():
         self.config = None  # network configuration
         self.ctx = None  # ZMQ context
         self.socket = None  # At this stage we do not know if more than one socket needs to be maintained
-        self.conn_sock = None
-        self.bind_sock = None
+        self.poller = None
 
     ###############################
     # configure/initialize
@@ -96,13 +96,27 @@ class CustomNetworkProtocol():
                 # self.conn_sock.connect(connect_str)
 
             else:
-                self.socket = self.ctx.socket(zmq.REQ)
-                ip = '10.0.0.2'
-                port = '4444'
-                # since we are client, we connect
-                connect_str = "tcp://" + ip + ":" + str(port)
-                print("Custom Network Protocol Object: Initialize - connect socket to {}".format(connect_str))
-                self.socket.connect(connect_str)
+                self.poller = zmq.Poller()
+                self.socket = self.ctx.socket(zmq.DEALER)
+                self.socket.setsockopt(zmq.IDENTITY)
+                connect_string = "tcp://" + "10.0.0.2" + ":" + str(4444)
+                print("TCP client will be connecting to {}".format(connect_string))
+                self.socket.connect(connect_string)
+                print("Register sockets for incoming events")
+                # poller.register (bind_sock, zmq.POLLIN)
+                self.poller.register(self.socket, zmq.POLLIN)
+
+                # self.socket = self.ctx.socket(zmq.REQ)
+                # ip = '10.0.0.2'
+                # port = '4444'
+                # # since we are client, we connect
+                # connect_str = "tcp://" + ip + ":" + str(port)
+                # print("Custom Network Protocol Object: Initialize - connect socket to {}".format(connect_str))
+                # self.socket.connect(connect_str)
+
+
+
+
                 # we are the client side
                 # print("Custom Network Protocol Object: Initialize - get REQ socket")
                 # print("here is the client ")
@@ -436,21 +450,33 @@ class CustomNetworkProtocol():
   ##################################
     #  send network packet
     ##################################
-    def send_packet(self, packet, size):
+    def send_packet(self, packet, size = 0):
         try:
 
             # Here, we simply delegate to our ZMQ socket to send the info
             print("Custom Network Protocol::send_packet")
             # @TODO@ - this may need mod depending on json or serialized packet
             print("CustomNetworkProtocol::send_packet")
-            # add the randomly generate information
-            # randomGenerate = os.urandom(1024 - len(packet))
-            # packet = packet + randomGenerate + bytes(len(packet),'utf-8')
-            # print(len(packet))
-            self.socket.send(packet)
-            #self.socket.send(bytes(packet,"utf-8"))
+            # self.socket.send (bytes(packet, "utf-8"))
+            # self.socket.send(packet)
+            print(self.role)
+            if self.role :
+                print("The packet is SENT without any loss")
+                self.socket.send(packet)
+            else:
+                scenario = random.randint(1, 1)
+                print("------------- 3 6 9-----------------")
+                print(scenario)
+                print("------------- 3 6 9-----------------")
+                if scenario != 0:
+                    print("The packet is SENT luckily")
+                    self.socket.send(packet)
+                else:
+                    print("The packet is DROPPED and failed to be sent")
+
         except Exception as e:
             raise e
+
 
     ######################################
     #  receive network packet
@@ -464,5 +490,31 @@ class CustomNetworkProtocol():
             print(packet)
             print("CustomNetworkProtocol::recv_packet ------ successfully")
             return packet
+        except Exception as e:
+            raise e
+
+    def send_multi(self, packet, size):
+        try:
+
+            # Here, we simply delegate to our ZMQ socket to send the info
+            print("Custom Network Protocol::send_multi")
+            # @TODO@ - this may need mod depending on json or serialized packet
+            print("CustomNetworkProtocol::send_multi")
+            self.socket.send_multipart([b'', bytes(packet, "utf-8")])
+            # self.conn_sock.send_multipart (bytes(packet, "utf-8"))
+
+        except Exception as e:
+            raise e
+
+
+    def recv_multi(self, len=0):
+        try:
+            # @TODO@ Note that this method always receives bytes. So if you want to
+            # convert to json, some mods will be needed here. Use the config.ini file.
+            print("CustomNetworkProtocol::recv_multi")
+            response = self.socket.recv_multipart()
+            # response = self.conn_sock.recv_multipart ()
+
+            return response
         except Exception as e:
             raise e

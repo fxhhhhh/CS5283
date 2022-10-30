@@ -43,6 +43,7 @@ def driver (args):
     # type. For TCP, we will use the REQ socket type (many other pairs are supported)
     # and this is to be used on the client side.
     socket = context.socket (zmq.REQ)
+    socket.setsockopt()
   except zmq.ZMQError as err:
     print ("ZeroMQ Error obtaining context: {}".format (err))
     return

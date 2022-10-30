@@ -181,12 +181,19 @@ class CustomTransportProtocol():
                 currChunk = ip + length + msg[i * 16: (i + 1) * 16] + bytes(str(signal % 2), 'utf-8')
                 print(currChunk)
                 self.nw_obj.send_packet(currChunk, len)
+                possibilty = 0
+                while True:
+                    time.sleep(1)
+                    possibilty += 1
+                    if possibilty == 3:
+                        self.nw_obj.send_packet(currChunk)
+                        possibilty = 0
+                    try:
+                        currRecv = self.nw_obj.recv_packet()
+                        break
+                    except Exception as e:
+                        continue
 
-
-
-
-
-                currRecv = self.nw_obj.recv_packet()
                 print("---------the ack I have received----------")
                 print(type(currRecv))
                 print(currRecv.decode('utf-8'))
