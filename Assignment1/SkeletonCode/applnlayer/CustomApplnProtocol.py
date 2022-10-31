@@ -104,7 +104,11 @@ class CustomApplnProtocol ():
 
       # initialize it
       print ("Custom Appln Protocol::initialize - initialize transport object")
-      self.xport_obj.initialize (config, ip, port)
+
+      self.xport_obj.initialize(config, ip, port)
+
+
+
 
     except Exception as e:
       raise e  # just propagate it
@@ -211,6 +215,7 @@ class CustomApplnProtocol ():
       # message.
       print ("CustomApplnProtocol::recv_appln_msg")
       request = self.xport_obj.recv_appln_msg ()
+
       print("CustomApplnProtocol::recv_appln_msg ------successfully")
       print(request)
       if self.ser_type == SerializationType.JSON:
@@ -259,7 +264,7 @@ class CustomApplnProtocol ():
       # transport segments etc and so what we receive from ZMQ is the complete
       # message.
       print ("CustomApplnProtocol::recv_response")
-      request = self.xport_obj.recv_appln_msg_onlyForClient()
+      request = self.xport_obj.recv_appln_msg_onlyForClient()[1]
       if self.ser_type == SerializationType.JSON:
         json_buf = json.loads(request)
         if MessageTypes(json_buf["type"]) == MessageTypes.GROCERY:

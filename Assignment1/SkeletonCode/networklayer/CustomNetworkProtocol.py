@@ -98,7 +98,7 @@ class CustomNetworkProtocol():
             else:
                 self.poller = zmq.Poller()
                 self.socket = self.ctx.socket(zmq.DEALER)
-                self.socket.setsockopt(zmq.IDENTITY)
+                # self.socket.setsockopt(zmq.IDENTITY,bytes(identity,'utf-8'))
                 connect_string = "tcp://" + "10.0.0.2" + ":" + str(4444)
                 print("TCP client will be connecting to {}".format(connect_string))
                 self.socket.connect(connect_string)
@@ -450,7 +450,7 @@ class CustomNetworkProtocol():
   ##################################
     #  send network packet
     ##################################
-    def send_packet(self, packet, size = 0):
+    def send_packet_forClient(self, packet, size = 0):
         try:
 
             # Here, we simply delegate to our ZMQ socket to send the info
@@ -462,7 +462,7 @@ class CustomNetworkProtocol():
             print(self.role)
             if self.role :
                 print("The packet is SENT without any loss")
-                self.socket.send(packet)
+                self.send_multi(packet)
             else:
                 scenario = random.randint(1, 1)
                 print("------------- 3 6 9-----------------")
@@ -470,7 +470,7 @@ class CustomNetworkProtocol():
                 print("------------- 3 6 9-----------------")
                 if scenario != 0:
                     print("The packet is SENT luckily")
-                    self.socket.send(packet)
+                    self.send_multi(packet)
                 else:
                     print("The packet is DROPPED and failed to be sent")
 
@@ -492,20 +492,26 @@ class CustomNetworkProtocol():
             return packet
         except Exception as e:
             raise e
-
-    def send_multi(self, packet, size):
+    def send_packet(self, packet, size = 0):
+        try:
+            print("-----------send packet--------------")
+            print(packet)
+            print("-----------send packet--------------")
+            self.socket.send(packet)
+        except Exception as e:
+            raise e
+    def send_multi(self, packet, size=0):
         try:
 
             # Here, we simply delegate to our ZMQ socket to send the info
             print("Custom Network Protocol::send_multi")
             # @TODO@ - this may need mod depending on json or serialized packet
             print("CustomNetworkProtocol::send_multi")
-            self.socket.send_multipart([b'', bytes(packet, "utf-8")])
+            self.socket.send_multipart([b'', packet])
             # self.conn_sock.send_multipart (bytes(packet, "utf-8"))
 
         except Exception as e:
             raise e
-
 
     def recv_multi(self, len=0):
         try:
@@ -513,6 +519,8 @@ class CustomNetworkProtocol():
             # convert to json, some mods will be needed here. Use the config.ini file.
             print("CustomNetworkProtocol::recv_multi")
             response = self.socket.recv_multipart()
+            print(response)
+            print("CustomNetworkProtocol::recv_multi ----successfully")
             # response = self.conn_sock.recv_multipart ()
 
             return response

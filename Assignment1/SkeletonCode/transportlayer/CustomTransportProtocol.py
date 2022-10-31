@@ -130,17 +130,13 @@ class CustomTransportProtocol():
             #
             # For this assignment, we do not care about all these things.
             print("Custom Transport Protocol::recv_segment")
-            segment = self.nw_obj.recv_packet(len)
+            segment = self.nw_obj.recv_multi()
             return segment
 
         except Exception as e:
             raise e
 
-
     ########################################  used for respons  e#####################################################
-
-
-
 
     ##################################
     #  send application message
@@ -162,8 +158,115 @@ class CustomTransportProtocol():
         except Exception as e:
             raise e
 
+    ########################################  used for GoBackN  e#####################################################
+
+    def send_segment_goBackN(self, segment, len=0):
+        try:
+            # For this assignment, we ask our dummy network layer to
+            # send it to peer. We ignore the length in this assignment
+            print("Custom Transport Protocol::send_segment")
+            ip = segment[0:8]
+            length = segment[8:11]
+            msg = segment[11:]
+            left = 0
+            right = 0
+
+            while left != 64:
+                if right - left < 8:
+                    currChunk = ip + length + msg[(right) * 16: ((right) + 1) * 16] + bytes(str(signal),'utf-8')
+                    print(currChunk)
+                    self.nw_obj.send_packet_forClient(currChunk, len)
+                    right += 1
+                else:
+                    try:
+                        currRecv = self.nw_obj.recv_multi()[1]
+                        if(int(currRecv.decode('utf-8')) == left):
+                            left += 1
+                        else:
+                            right = left
+                    except:
+                        continue
+            # work as the end signal for whole message
+            self.nw_obj.send_packet_forClient(ip + length + bytes(str('3'), 'utf-8'), 12)
+            print('finish sending the information by segment')
+        except Exception as e:
+            raise e
+    def recv_appln_msg_goBackN(self, len1=0):
+        try:
+            # The transport protocol (at least TCP) is byte stream, which means it does not
+            # know the boundaries of the message. So it must be told how much to receive
+            # to make up a meaningful message. In reality, a transport layer will receive
+            # all the segments that make up a meaningful message, assemble it in the correct
+            # order and only then pass it up to the caller.
+            #
+            # For this assignment, we do not care about all these things.
+            print("Custom Transport Protocol::recv_appln_msg")
+            res_appln_msg = b''
+            print('debug 1')
+            size = 0
+            currMsg = ''
+            while currMsg != 3:
+                currMsg = self.recv_segment()
+                print("-------------curr Msg ----------------")
+                print(currMsg)
+                print("-------------curr Msg ----------------")
+                if (currMsg == 3):
+                    break
+                if (currMsg == b''):
+                    continue
+                print(currMsg[8:11])
+                size = int(currMsg[8:11].decode("utf-8"))
+                res_appln_msg = res_appln_msg[:-1] + currMsg[11:]
+                print("-------------curr received msg ----------------")
+                print(res_appln_msg)
+                print("-------------curr received msg ----------------")
+            res_appln_msg = res_appln_msg[0:size]
+            print(res_appln_msg)
+            print(len(res_appln_msg))
+            print("Custom Transport Protocol::recv_appln_msg -------- successfully")
+            return res_appln_msg
+
+        except Exception as e:
+            raise e
+
+    ######################################
+    #  receive transport segment
+    ######################################
+    def recv_segment_goBackN(self, len=0):
+        try:
+            # receive a segment. In future assignments, we may be asking for
+            # a pipeline of segments.
+            #
+            # For this assignment, we do not care about all these things.
+            print("Custom Transport Protocol::recv_segment")
+            segment = self.nw_obj.recv_multi()[0]
+            print(segment)
+            incomingSignal = int(chr(segment[-1]))
+            print("----------debug what the incoming signal is--------------")
+            print(incomingSignal)
+            print("----------debug what the incoming signal is--------------")
+            if incomingSignal == self.serverCnt:
+                print(bytes(str(self.serverCnt), 'utf-8'))
+                print("----------debug what the serverCnt is--------------")
+                print(self.serverCnt)
+                self.nw_obj.send_packet(bytes(str(int(self.serverCnt)), 'utf-8'), 1)
+                self.serverCnt = (self.serverCnt + 1)
+                print(segment)
+                print("Custom Transport Protocol::recv_segment------ successfully")
+                print(bytes(str(self.serverCnt), 'utf-8'))
+                return segment
+            elif incomingSignal != 3:
+                print("----------send the wrong msg-------------")
+                self.nw_obj.send_packet(bytes(str(self.serverCnt), 'utf-8'), 1)
+                return b''
+            else:
+                print("already in the last point")
+                self.serverCnt = 0
+                return 3
 
 
+        except Exception as e:
+            raise e
     ########################################  used for AB  e#####################################################
     ##################################
     #  send transport layer segment AB
@@ -180,33 +283,34 @@ class CustomTransportProtocol():
             for i in range(0, 65):
                 currChunk = ip + length + msg[i * 16: (i + 1) * 16] + bytes(str(signal % 2), 'utf-8')
                 print(currChunk)
-                self.nw_obj.send_packet(currChunk, len)
+                self.nw_obj.send_packet_forClient(currChunk, len)
                 possibilty = 0
                 while True:
                     time.sleep(1)
                     possibilty += 1
                     if possibilty == 3:
-                        self.nw_obj.send_packet(currChunk)
+                        self.nw_obj.send_packet_forClient(currChunk)
                         possibilty = 0
                     try:
-                        currRecv = self.nw_obj.recv_packet()
+                        currRecv = self.nw_obj.recv_multi()[1]
                         break
                     except Exception as e:
                         continue
 
                 print("---------the ack I have received----------")
                 print(type(currRecv))
+                print(currRecv)
                 print(currRecv.decode('utf-8'))
                 print("---------the ack I have received----------")
                 currRecv = int(currRecv.decode("utf-8"))
                 # used to check if I receive the correct ack
                 while currRecv != signal % 2:
-                    self.nw_obj.send_packet(currChunk, len)
-                    currRecv = self.nw_obj.recv_packet()
+                    self.nw_obj.send_packet_forClient(currChunk, len)
+                    currRecv = self.nw_obj.recv_multi()
                     currRecv = int(currRecv.decode("utf-8"))
                 signal += 1
             # work as the end signal for whole message
-            self.nw_obj.send_packet(ip + length + bytes(str('3'),'utf-8'), 12)
+            self.nw_obj.send_packet_forClient(ip + length + bytes(str('3'), 'utf-8'), 12)
             print('finish sending the information by segment')
         except Exception as e:
             raise e
@@ -233,9 +337,9 @@ class CustomTransportProtocol():
                 print("-------------curr Msg ----------------")
                 print(currMsg)
                 print("-------------curr Msg ----------------")
-                if(currMsg == 3):
+                if (currMsg == 3):
                     break
-                if(currMsg == b''):
+                if (currMsg == b''):
                     continue
                 print(currMsg[8:11])
                 size = int(currMsg[8:11].decode("utf-8"))
@@ -262,7 +366,7 @@ class CustomTransportProtocol():
             #
             # For this assignment, we do not care about all these things.
             print("Custom Transport Protocol::recv_segment")
-            segment = self.nw_obj.recv_packet()
+            segment = self.nw_obj.recv_multi()[0]
             print(segment)
             incomingSignal = int(chr(segment[-1]))
             print("----------debug what the incoming signal is--------------")
@@ -290,7 +394,6 @@ class CustomTransportProtocol():
 
         except Exception as e:
             raise e
-
 
     # ########################################  used for Back-N  e#####################################################
     # def send_segment(self, segment, len=0):
