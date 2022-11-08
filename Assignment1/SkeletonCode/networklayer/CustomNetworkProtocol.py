@@ -12,6 +12,7 @@
 import os  # for OS functions
 import sys  # for syspath and system exception
 import random
+import time
 
 # add to the python system path so that packages can be found relative to
 # this directory
@@ -42,6 +43,7 @@ class CustomNetworkProtocol():
         self.ctx = None  # ZMQ context
         self.socket = None  # At this stage we do not know if more than one socket needs to be maintained
         self.poller = None
+        self.flag = False
 
     ###############################
     # configure/initialize
@@ -347,7 +349,6 @@ class CustomNetworkProtocol():
                             conn_sock.close()
                             return
 
-
                 if conn_sock in socks:
                     try:
                         #  Wait for response from next hop
@@ -459,21 +460,21 @@ class CustomNetworkProtocol():
             print("CustomNetworkProtocol::send_packet")
             # self.socket.send (bytes(packet, "utf-8"))
             # self.socket.send(packet)
-            print(self.role)
             if self.role :
                 print("The packet is SENT without any loss")
                 self.send_multi(packet)
             else:
-                scenario = random.randint(1, 1)
+                scenario = random.randint(1, 2)
                 print("------------- 3 6 9-----------------")
                 print(scenario)
+                print(packet)
                 print("------------- 3 6 9-----------------")
-                if scenario != 0:
+                if scenario == 1 and self.flag==False:
+                    print("The packet is DROPPED and failed to be sent")
+                    self.flag = True
+                else:
                     print("The packet is SENT luckily")
                     self.send_multi(packet)
-                else:
-                    print("The packet is DROPPED and failed to be sent")
-
         except Exception as e:
             raise e
 
@@ -518,6 +519,21 @@ class CustomNetworkProtocol():
             # @TODO@ Note that this method always receives bytes. So if you want to
             # convert to json, some mods will be needed here. Use the config.ini file.
             print("CustomNetworkProtocol::recv_multi")
+
+            response = self.socket.recv_multipart()
+            print(response)
+            print("CustomNetworkProtocol::recv_multi ----successfully")
+            # response = self.conn_sock.recv_multipart ()
+
+            return response
+        except Exception as e:
+            raise e
+    def recv_multi_1(self,):
+        try:
+            # @TODO@ Note that this method always receives bytes. So if you want to
+            # convert to json, some mods will be needed here. Use the config.ini file.
+            print("CustomNetworkProtocol::recv_multi")
+            # self.ctx.socket.settimeout(20)
             response = self.socket.recv_multipart()
             print(response)
             print("CustomNetworkProtocol::recv_multi ----successfully")

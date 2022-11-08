@@ -265,6 +265,8 @@ class CustomApplnProtocol ():
       # message.
       print ("CustomApplnProtocol::recv_response")
       request = self.xport_obj.recv_appln_msg_onlyForClient()[1]
+      while len(request) == 1:
+        request = self.xport_obj.recv_appln_msg_onlyForClient()[1]
       if self.ser_type == SerializationType.JSON:
         json_buf = json.loads(request)
         if MessageTypes(json_buf["type"]) == MessageTypes.GROCERY:
