@@ -1,0 +1,5 @@
+h6 python3 test_router.py -A 10.0.0.10 -P 4444 -t "Router1" &> r6.log &
+h10 python3 test_router.py -A 10.0.0.17 -P 4444 -t "Router2" &> r10.log &
+h17 python3 test_router.py -A 10.0.0.24 -P 4444 -t "Router3" &> r17.log &
+h24 python3 test_router.py -A 10.0.0.27 -P 5555 -t "Router4" &> r24.log &
+h27 python3 test_server.py &> server.log &

@@ -1,0 +1,62 @@
+###############################################################################
+#
+# Author: Aniruddha Gokhale Xihan Fu
+# Institution: Vanderbilt University
+# Course: CS4283/5283 Computer Networks
+# Created: Fall 2022
+#
+# Purpose:
+#
+#    This directory contains ZMQ only code for client, router and server. This is for demo purposes to show how you can
+#     test out the basic chaining logic that we are intending to do for our PA2.
+###############################################################################
+
+
+
+Here, we are going to run things in Mininet so that the IP addresses are different.
+
+(1) create a mininet topology without loss
+
+ if we don't want the loss   sudo mn --topo=single,7 --link=tc,delay=5ms, loss = 5
+ if we want to add the loss  sudo mn --topo=single,7 --link=tc,delay=5ms
+
+(2) Now source the commands.txt file on the Mininet prompt as follows:
+in Scenario1 and Scenario2:
+        h3 python3 test_router.py -A 10.0.0.4 -P 4444 -t "Router1" &> r3.log &
+        h4 python3 test_router.py -A 10.0.0.5 -P 4444 -t "Router2" &> r4.log &
+        h5 python3 test_router.py -A 10.0.0.6 -P 4444 -t "Router3" &> r5.log &
+        h6 python3 test_router.py -A 10.0.0.7 -P 5555 -t "Router4" &> r6.log &
+        h7 python3 test_server.py &> server.log &
+in Scenario3:
+    the commands will be changed as following:
+        h6 python3 test_router.py -A 10.0.0.10 -P 4444 -t "Router1" &> r6.log &
+        h10 python3 test_router.py -A 10.0.0.17 -P 4444 -t "Router2" &> r10.log &
+        h17 python3 test_router.py -A 10.0.0.24 -P 4444 -t "Router3" &> r17.log &
+        h24 python3 test_router.py -A 10.0.0.27 -P 5555 -t "Router4" &> r24.log &
+        h27 python3 test_server.py &> server.log &
+
+
+           Mininet> source commands.txt
+
+
+(3) Now we manually run 3 different clients.  You can run them on the same host or different hosts of Mininet. Here we will run
+      them on the same host h1
+in Scenario1 and Scenario2
+      Mininet> xterm h1 h2 h1
+
+      first xterm of h1:          python3 test_client.py -a 10.0.0.3 -p 4444 -m HelloClient1 -t "Client1" >test1.txt
+      second xterm of h1:    python3 test_client.py -a 10.0.0.3 -p 4444 -m HelloClient2  -t "Client2">test2.txt
+      first xterm of h2:        python3 test_client.py -a 10.0.0.3 -p 4444 -m HelloClient3  -t "Client3">test3.txt
+in Scenario3
+    Mininet> xterm h1 h2 h1
+
+      first xterm of h1:          python3 test_client.py -a 10.0.0.6 -p 4444 -m HelloClient1 -t "Client1">test1.txt
+      second xterm of h1:    python3 test_client.py -a 10.0.0.6 -p 4444 -m HelloClient2  -t "Client2" >test2.txt
+      first xterm of h2:        python3 test_client.py -a 10.0.0.6 -p 4444 -m HelloClient3  -t "Client3" >test3.txt
+(4) after get the output in the txt, run the plot.py to plot the graph
+    python3 plot.py
+
+
+
+
+

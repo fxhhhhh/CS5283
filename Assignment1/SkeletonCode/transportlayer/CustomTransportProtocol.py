@@ -466,6 +466,7 @@ class CustomTransportProtocol():
                     return segment
                 elif incomingSignal != self.serverCnt:
                     print("----------send the wrong msg-------------")
+                    time.sleep(3)
                     self.nw_obj.send_packet(bytes(str(self.serverCnt + 1), 'utf-8'), 1)
                     return b''
             except:
