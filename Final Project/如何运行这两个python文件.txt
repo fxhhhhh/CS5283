@@ -1,0 +1,14 @@
+在安装好RYU之后（SDN_tutorials_with_RYU中有安装教程）
+
+sudo python3 topo.py
+
+Mininet建立好之后，输入
+ryu-manager --observe-links Kruskal.py
+
+(每次重新运行Kruskal.py时不需要重新运行topo.py)
+
+在关闭Mininet拓扑时，一定要先
+exit
+然后
+sudo mn -c
+这样才可以把mininet清除，否则下次运行可能报错。
